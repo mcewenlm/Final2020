@@ -15,7 +15,7 @@ TrialData <-read.csv(file="covid91.csv",header=TRUE)
 
 <!--In this section you explain what you are trying to show.  Where did the data come from?  What is the research or other question you are trying to answer?.  If you skimp in this section expect to be marked down in your grade. Paint a picture of the project a couple of paragraphs is expected!-->
 
-A new  preventative vaccine (covid-19) is under test in clinical trials. Given the nature of this vaccine it is suspected that the drug may exhibit different effectiveness across the variety of sub-populations tracked. Consider population subgroups by gender( guys and gals), drug use, and sexual orientation. Write a complete report that separately considers this drug for each subgroup and your recommendations as to whether people in the subgroup should take the vaccine.
+A new  preventative vaccine (covid91) is under test in clinical trials. Given the nature of this vaccine it is suspected that the drug may exhibit different effectiveness across the variety of sub-populations tracked. Consider population subgroups by gender( guys and gals), drug use, and sexual orientation. Write a complete report that separately considers this drug for each subgroup and your recommendations as to whether people in the subgroup should take the vaccine.
 
 $H_0$: Among the target population, the vaccine has no effect on whether or not one contracts the covid-19 virus. 
 $H_A$: Among the target population, the vaccine has an effect on whether or not one contracts the covid-19 virus.  
@@ -29,7 +29,25 @@ Every variable we refer to are categorical so
 
 <!--Divide this section into two sub-sections:  One for your descriptive  results and one for your inferential results.!-->
 
+##Graphical Descriptive Results
 
+```{r}
+DataF = filter(TrialData,sex=="gal")
+barchartGC(~infected + treatment,data=DataF)
+barchartGC(~infected + treatment,data=DataF, type="percent",main="gals")
+
+```
+
+Among the females who contracted covid-19, twice as many were given the placebo as those who were given the actual drug. Therefore, it does appear the vaccine has a positive effect on females.  
+  
+```{r}
+DataF = filter(TrialData,sex=="guy")
+barchartGC(~infected + treatment,data=DataF)
+barchartGC(~infected + treatment,data=DataF, type="percent",main="guys")
+
+```
+
+Among the males who contracted covid-19, it appears that approximately 15-18 percent more received the drug than those who received the placebo. Therefore, it is possible the drug did not have a positive effect on males. 
 
 # Discussion and Conclusion
 
