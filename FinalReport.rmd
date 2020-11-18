@@ -8,31 +8,36 @@ output: html_document
 ```{r include=FALSE,echo=FALSE}
 require(tidyverse)
 require(tigerstats)
-TrialData <-read.csv(file="covid91.csv",header=TRUE)
+require(forcats)
+OldData <-read.csv(file="covid91.csv",header=TRUE)
+#recode aids to say covid and then remove the annoying "X" from the dataframe
+FinalData <- OldData %>% mutate(infected = recode(infected, aids= "covid", none = "OK")) %>% select(-one_of("X"))
 ```
 
 # Introduction
 
 <!--In this section you explain what you are trying to show.  Where did the data come from?  What is the research or other question you are trying to answer?.  If you skimp in this section expect to be marked down in your grade. Paint a picture of the project a couple of paragraphs is expected!-->
 
-A new  preventative vaccine (covid91) is under test in clinical trials. Given the nature of this vaccine it is suspected that the drug may exhibit different effectiveness across the variety of sub-populations tracked. Consider population subgroups by gender( guys and gals), drug use, and sexual orientation. Write a complete report that separately considers this drug for each subgroup and your recommendations as to whether people in the subgroup should take the vaccine.
-
-$H_0$: Among the target population, the vaccine has no effect on whether or not one contracts the covid-19 virus. 
-$H_A$: Among the target population, the vaccine has an effect on whether or not one contracts the covid-19 virus.  
+A new  preventative vaccine (covid91) is under test in clinical trials. Given the nature of this vaccine it is suspected that the drug may exhibit different effectiveness across the variety of sub-populations tracked. Consider population subgroups by gender( guys and gals), drug use, and sexual orientation. Write a complete report that separately considers this drug for each subgroup and your recommendations as to whether people in the subgroup should take the vaccine.  
+  
+In this clinical trial, is the vaccine effective in preventing the targeted population from getting Covid-19?   
+  
+$H_0$: Among the target population, the vaccine has no effect on whether or not one contracts the covid-19 virus.   
+$H_A$: Among the target population, the vaccine has an effect on whether or not one contracts the covid-19 virus.    
   
 # Methods
 
 <!--Decide on your methods:  use "variable analysis" or other appropriate descriptors.  Make sure to choose at least one graphical method and at least one numerical method. Discuss what data manipulations may be needed for example subsetting or other binning procedures and what sort of graphical displays and inferential tools will be used!-->
 
-Every variable we refer to are categorical so 
+Every variable we refer to are categorical so we are using Cat~Cat summaries.  
+  
 # Results
 
 <!--Divide this section into two sub-sections:  One for your descriptive  results and one for your inferential results.!-->
 
-##Graphical Descriptive Results
-
+##Graphical Descriptive - Females
 ```{r}
-DataF = filter(TrialData,sex=="gal")
+DataF = filter(FinalData,sex=="gal")
 barchartGC(~infected + treatment,data=DataF)
 barchartGC(~infected + treatment,data=DataF, type="percent",main="gals")
 
@@ -40,15 +45,124 @@ barchartGC(~infected + treatment,data=DataF, type="percent",main="gals")
 
 Among the females who contracted covid-19, twice as many were given the placebo as those who were given the actual drug. Therefore, it does appear the vaccine has a positive effect on females.  
   
+#Numerical Inferential - Females  
+  
 ```{r}
-DataF = filter(TrialData,sex=="guy")
+DataF = filter(FinalData,sex=="gal")
+table1 <- xtabs(~infected + treatment, data=DataF)
+rowPerc(table1)
+colPerc(table1)
+```
+
+According to the above table, only 4.44% of females who received the drug contracted Covid, while 95.56% who received the vaccine did not. 
+
+```{r}
+chisq.test(table1)
+chisqtestGC(table1)
+fisher.test(table1)
+```
+   
+The p-value is 0.0000000000000003626, therefore we reject the null hypothesis. There is evidence to show that the vaccine is effective in preventing Covid-19 in females. The odds ratio is 0.4889 meaning there is a 0.4889:1 chance that a female who has received the vaccine will get Covid-19. Those who have received the vaccine are about half as likely to contract Covid-19 as those who do not receive the vaccine. The 95% confidence interval is 0.408 to 0.488 which is under 1, so the results are significant.    
+  
+   
+##Graphical Descriptive - Males
+  
+```{r}
+DataF = filter(FinalData,sex=="guy")
 barchartGC(~infected + treatment,data=DataF)
 barchartGC(~infected + treatment,data=DataF, type="percent",main="guys")
 
 ```
 
-Among the males who contracted covid-19, it appears that approximately 15-18 percent more received the drug than those who received the placebo. Therefore, it is possible the drug did not have a positive effect on males. 
+Among the males who contracted covid-19, it appears that approximately 15-18 percent more received the drug than those who received the placebo. Therefore, it is possible the drug did not have a positive effect on males.  
+  
+#Numerical Inferential - Males  
+  
+```{r}
+DataM = filter(FinalData,sex=="guy")
+table1 <- xtabs(~infected + treatment, data=DataM)
+rowPerc(table1)
+colPerc(table1)
+```
+  
+According to the above table, of the males who contracted Covid-19, 58.16% received the vaccine while only 41.84% received the placebo. It appears that the vaccine may have had a negative impact on males.  
+   
+```{r}
+chisq.test(table1)
+chisqtestGC(table1)
+fisher.test(table1)
+```
+  
+The p-value is 0.0006181 which is less than 0.05 so we reject the null hypothesis. The vaccine appears to have an effect on males. The vaccine negatively impacts males and makes them more likely to contract Covid-19. According to the odds ratio, males who receive the vaccine are 1.47 times more likely to contract Covid than those who do not receive the vaccine. The 95% confidence interval is 1.17 to 1.84 which is above 1 so the result is significant.    
+  
+##Graphical Descriptive - Drug Users
+  
+```{r}
+DrugUser = filter(FinalData,DrugUser=="yes")
+barchartGC(~infected + treatment,data=DrugUser)
+barchartGC(~infected + treatment,data=DrugUser, type="percent",main="DrugUser")
 
-# Discussion and Conclusion
+```
 
-<!--Discussion and conclusion here.  If you found a relationship be sure to consider whether the relationship occurs because one of the variavbles causes the other, or whether they perhasps are related for some other reason.  Watch the chapter 6 videos from the GeorgeTown videos collection.!-->
+Among the drug users who contracted covid-19, twice as many received the placebo as those who received the vaccine. Therefore, it does appear that the vaccine has a positive effect on drug users.    
+  
+#Numerical Inferential - Drug Users  
+  
+```{r}
+DrugUser = filter(FinalData,DrugUser=="yes")
+table1 <- xtabs(~infected + treatment, data=DrugUser)
+rowPerc(table1)
+colPerc(table1)
+```
+
+According to the above table, of the drug users that contracted Covid, 33.33% were given the vaccine as compared to 66.67% who were given the placebo. Of those who received the vaccine, only 3.63% ended up contracting Covid. It appears that the vaccine may have a positive effect on drug users.  
+  
+```{r}
+chisq.test(table1)
+chisqtestGC(table1)
+fisher.test(table1)
+```
+  
+According to the above test information, the p-value is 0.003028 which is less than 0.05. We reject the null hypothesis and state that the vaccine does have an effect on drug users. It appears that the vaccine has a positive effect on drug users, and according to the Fisher test odds ratio of 0.545:1, drug users who receive the vaccine are approximately half as likely to contract Covid as those who do not receive the vaccine. The 95% confidence interval is 0.35 to 0.819 which is less than 1 so the results are significant.    
+  
+##Graphical Descriptive - LGBTQ  
+  
+```{r}
+LGBTQ = filter(FinalData,LGBTQ=="gay")
+barchartGC(~infected + treatment,data=LGBTQ)
+barchartGC(~infected + treatment,data=LGBTQ, type="percent", main="LGBTQ")
+```
+  
+Among the LGBTQ community members who contracted covid-19, twice as many received the vaccine as those who received the placebo. It appears that the vaccine may make LGBTQ folx more likely to contract covid-19 than those who do not receive it.  
+  
+#Numerical Inferential - LGBTQ    
+   
+```{r}
+LGBTQ = filter(FinalData,LGBTQ=="gay")
+table1 <- xtabs(~infected + treatment, data=LGBTQ)
+rowPerc(table1)
+colPerc(table1)
+```
+  
+According to the above table, 7.97% of the LGBT participants who were given the vaccine ended up contracting Covid-19, whereas  92.03% did not contract Covid-19. Of the particpants who contracted Covid-19, 70.69% were given the drug and only 29.31% were given the placebo. From this information, it appears that the vaccine may have a negative impact on members of the LGBT community.   
+   
+```{r}
+chisq.test(table1)
+chisqtestGC(table1)
+fisher.test(table1)
+``` 
+   
+The p-value is 0.0000105 which is less than 0.05 so we reject the null hypothesis. It seems that the vaccine had a largely negative effect on members of the LGBT community. The 95% confidence interval is 1.63 to 3.87 which is above 1, so the results are significant. According to the results of the Fisher test, the odds ratio is 2.49:1 meaning the LGBT folks who receive the vaccine are 2.5 times more likely to contract Covid than those who do not receive the vaccine.   
+   
+# Discussion and Conclusion  
+  
+<!--Discussion and conclusion here.  If you found a relationship be sure to consider whether the relationship occurs because one of the variavbles causes the other, or whether they perhasps are related for some other reason.  Watch the chapter 6 videos from the GeorgeTown videos collection.!-->  
+   
+Among the female population tested, the vaccine was effective in preventing Covid-19. Females who received the vaccine were half as likely to contract Covid-19 as those who received the placebo.   
+    
+Among the male population tested, the vaccine was ineffective in preventing Covid-19. It appeared to have the opposite effect. Males who received the vaccine were 1.47 times more likely to contract Covid-19 as those who received the placebo.   
+   
+Among the drug user particpants, the vaccine was effective in preventing Covid-19. Drug users who were given the vaccine were approximately half as likely to contract Covid-19 as those who were given the placebo.   
+   
+Among the LGBT population, the vaccine was ineffective in preventing Covid-19. The vaccine made them much more susceptible to contracting the virus. LGBT people who were given the vaccine were about 2.5 times more likely to contract Covid-19 than those who were given the placebo.    
+  
